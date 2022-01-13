@@ -1,4 +1,4 @@
-# @taywa/swetch
+# @taywa/swetch 🛤️
 
 > Switching fetch
 
