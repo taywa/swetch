@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import server from '../lib/server.mjs'
 
 const argvMap = Object.fromEntries(
