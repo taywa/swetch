@@ -1,4 +1,7 @@
-export const mergeConfig = (defaultConfig, config = {}) => ({
-  ...defaultConfig,
-  ...config,
-})
+export const mergeConfig = (defaultConfig, config = {}) =>
+  Object.fromEntries(
+    Object.entries(defaultConfig).map(([key]) => [
+      key,
+      config[key] ?? defaultConfig[key],
+    ])
+  )
