@@ -7,14 +7,16 @@ import os from 'os'
 import path from 'path'
 import { mergeConfig } from './utilities.mjs'
 
-const getLogger = requestHash =>
-  Object.fromEntries(
+const getLogger = requestHash => {
+  const shortHash = requestHash.substring(0, 10)
+
+  return Object.fromEntries(
     ['info', 'warn', 'error'].map(method => [
       method,
-      (...consoleArguments) =>
-        console[method](requestHash, ...consoleArguments),
+      (...consoleArguments) => console[method](shortHash, ...consoleArguments),
     ])
   )
+}
 
 const serializeResponse = async response =>
   JSON.stringify({
@@ -22,13 +24,15 @@ const serializeResponse = async response =>
     body: await response.text(),
   })
 
-const respond = (ctx, headers, body) => {
+const respond = (ctx, headers, body, status) => {
   const { 'content-encoding': contentEncoding, ...relevantHeaders } = headers
 
   for (const [header, value] of Object.entries(relevantHeaders)) {
     ctx.set(header, value)
   }
+
   ctx.body = body
+  ctx.status = status ?? ctx.status
 }
 
 const getRequestHash = (resource, init) => {
@@ -86,48 +90,80 @@ const server = config => {
 
     const logger = getLogger(requestHash)
 
-    logger.info(
-      `${record ? 'recording ' : ''}${init.method || 'get'} ${absoluteResource}`
-    )
-
-    if (record) {
-      const response = await fetch(absoluteResource, init)
-      const clone = response.clone()
-
-      const headers = Object.fromEntries(clone.headers.entries())
-      const body = await clone.text()
-
-      try {
-        await fs.mkdir(requestDirectory, { recursive: true })
-      } catch {}
-
-      try {
-        await fs.writeFile(
-          requestDataFilePath,
-          await serializeResponse(response)
-        )
-      } catch (error) {
-        logger.error(`no data written:`, error)
+    try {
+      if (!resource) {
+        throw {
+          message: `missing resource: '${resource}'`,
+          status: 400,
+        }
+      }
+      if (!init) {
+        throw {
+          message: `missing init: '${resource}'`,
+          status: 400,
+        }
       }
 
-      respond(ctx, headers, body)
+      logger.info(
+        `${record ? 'recording ' : ''}${
+          init.method || 'get'
+        } ${absoluteResource}`
+      )
 
-      return
-    }
+      if (record) {
+        const response = await fetch(absoluteResource, init)
+        const clone = response.clone()
 
-    try {
-      const fileContent = await fs.readFile(requestDataFilePath)
-      const { headers, body } = JSON.parse(fileContent)
+        const headers = Object.fromEntries(clone.headers.entries())
+        const body = await clone.text()
 
-      respond(ctx, headers, body)
+        try {
+          await fs.mkdir(requestDirectory, { recursive: true })
+        } catch {}
 
-      return
-    } catch {
-      logger.warn(`No data`)
-      ctx.status = 404
-      ctx.body = `${requestHash} has no data\n${JSON.stringify(
-        ctx.request.body
-      )}`
+        try {
+          await fs.writeFile(
+            requestDataFilePath,
+            await serializeResponse(response)
+          )
+        } catch (error) {
+          logger.error(`no data written:`, error)
+        }
+
+        respond(ctx, headers, body)
+
+        return
+      }
+
+      try {
+        const fileContent = await fs.readFile(requestDataFilePath)
+        const { headers, body } = JSON.parse(fileContent)
+
+        respond(ctx, headers, body)
+
+        return
+      } catch {
+        throw {
+          message: `no data`,
+          status: 404,
+        }
+      }
+    } catch (error) {
+      logger.warn(error.message)
+
+      respond(
+        ctx,
+        { 'Content-Type': 'application/json' },
+        {
+          errors: [
+            {
+              message: error.message,
+              details: { requestBody: ctx.request.body },
+            },
+          ],
+        },
+        error.status ?? 500
+      )
     }
   })
 
