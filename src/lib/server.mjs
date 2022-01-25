@@ -8,7 +8,7 @@ import path from 'path'
 import { mergeConfig } from './utilities.mjs'
 
 const getLogger = requestHash => {
-  const shortHash = requestHash.substring(0, 10)
+  const shortHash = requestHash.substring(0, 8)
 
   return Object.fromEntries(
     ['info', 'warn', 'error'].map(method => [
