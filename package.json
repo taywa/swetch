@@ -2,7 +2,7 @@
   "name": "@taywa/swetch",
   "type": "module",
   "version": "1.0.0",
-  "description": "",
+  "description": "Easily mock your real API data, simply by using your app.",
   "main": "src/lib/index.mjs",
   "scripts": {
     "dev:server": "NODE_ENV=development nodemon -e mjs --exec \"clear && node src/dev/server.mjs\"",
@@ -22,5 +22,10 @@
   },
   "files": [
     "src/lib/*"
+  ],
+  "keywords": [
+    "mock",
+    "api",
+    "fetch"
   ]
 }
