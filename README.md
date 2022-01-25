@@ -12,10 +12,8 @@ Swetch replaces any `fetch`. Use the exported function to set up your swetch ins
 
 We need something that can save the request data.
 
-```javascript
-import { server } from '@taywa/swetch'
-
-server()
+```shell
+npx @taywa/swetch
 ```
 
 ### Get your fake fetch
@@ -99,8 +97,8 @@ When not recording, that data is used instead of passing the request on.
 | --- | --- | --- |
 | port | `8008` | The port the server should listen on |
 | dataDirectory | `'.swetch'` | The directory to save data to |
-| getRequestHash | [server:33](src/lib/server.mjs) | A function taking a request URL string & an init object, and returning a string identifying that request. Allows for customization if requests contain timestamped data. |
-| getRelativeResourceDirectory | [server:44](src/lib/server.mjs) | A function taking a URL string & an init object, and returning a directory path string. Allows for customization of subfolders.
+| getRequestHash | [server:33](src/lib/server.mjs) | A function taking a request URL string & an init object, and returning a string identifying that request. Allows for customization if requests contain timestamped data. _Not available via cli/npx._ |
+| getRelativeResourceDirectory | [server:44](src/lib/server.mjs) | A function taking a URL string & an init object, and returning a directory path string. Allows for customization of subfolders. _Not available via cli/npx._ |
 
 ```javascript
 import { server } from '@taywa/swetch'
