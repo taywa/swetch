@@ -5,6 +5,8 @@
   "description": "Easily mock your real API data, simply by using your app.",
   "main": "src/lib/index.mjs",
   "scripts": {
+    "start": "node src/scripts/server.mjs",
+    "swetch": "node src/scripts/server.mjs",
     "dev:server": "NODE_ENV=development nodemon -e mjs --exec \"clear && node src/dev/server.mjs\"",
     "dev:swetch": "NODE_ENV=development nodemon -e mjs --exec \"clear && node src/dev/swetch.mjs\""
   },
