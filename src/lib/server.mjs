@@ -3,6 +3,7 @@ import koaBodyparser from 'koa-bodyparser'
 import fetch from 'node-fetch'
 import crypto from 'crypto'
 import { promises as fs } from 'fs'
+import os from 'os'
 import path from 'path'
 import { mergeConfig } from './utilities.mjs'
 
@@ -131,6 +132,9 @@ const server = config => {
   })
 
   koa.listen(port)
+
+  console.info(`http://${os.hostname()}:${port}`)
+  console.info(dataRoot)
 }
 
 export default server
