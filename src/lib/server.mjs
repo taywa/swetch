@@ -130,18 +130,14 @@ const server = config => {
           logger.error(`no data written:`, error)
         }
 
-        respond(ctx, headers, body)
-
-        return
+        return respond(ctx, headers, body)
       }
 
       try {
         const fileContent = await fs.readFile(requestDataFilePath)
         const { headers, body } = JSON.parse(fileContent)
 
-        respond(ctx, headers, body)
-
-        return
+        return respond(ctx, headers, body)
       } catch {
         throw {
           message: `no data`,
@@ -151,7 +147,7 @@ const server = config => {
     } catch (error) {
       logger.warn(error.message)
 
-      respond(
+      return respond(
         ctx,
         { 'Content-Type': 'application/json' },
         {
