@@ -143,4 +143,4 @@ Swetch unintrusively ties into your preferred API client. Just replace your fetc
 
 ## Don't use swetch in production environments
 
-It's exclusively intended for real-world-data mocking during testing and doesn't guarantee performance or proper passthrough handling. Swetch is not a proxy.
+It's exclusively intended for real-world-data mocking during testing and doesn't guarantee performance or security.
