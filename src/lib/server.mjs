@@ -27,6 +27,9 @@ const serializeResponse = async response =>
 const respond = (ctx, headers = {}, body, status) => {
   const { 'content-encoding': contentEncoding, ...relevantHeaders } = headers
 
+  ctx.set('Access-Control-Allow-Origin', '*')
+  ctx.set('Access-Control-Allow-Methods', '*')
+  ctx.set('Access-Control-Allow-Headers', '*')
   for (const [header, value] of Object.entries(relevantHeaders)) {
     ctx.set(header, value)
   }
