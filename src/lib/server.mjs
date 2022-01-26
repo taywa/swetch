@@ -24,7 +24,7 @@ const serializeResponse = async response =>
     body: await response.text(),
   })
 
-const respond = (ctx, headers, body, status) => {
+const respond = (ctx, headers = {}, body, status) => {
   const { 'content-encoding': contentEncoding, ...relevantHeaders } = headers
 
   for (const [header, value] of Object.entries(relevantHeaders)) {
@@ -73,6 +73,10 @@ const server = config => {
   koa.use(koaBodyparser())
   koa.use(async (ctx, next) => {
     await next()
+
+    if (ctx.request.method.toUpperCase() === 'OPTIONS') {
+      return respond(ctx)
+    }
 
     const { resource, init, record, origin: swetchOrigin } = ctx.request.body
     const { origin, host } = ctx.request.headers
