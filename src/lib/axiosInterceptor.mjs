@@ -1,12 +1,12 @@
 import { defaultSwetchConfig } from './swetch.mjs'
-import { mergeConfig } from './utilities.mjs'
+import { getBrowserOrigin, mergeConfig } from './utilities.mjs'
 
 const axiosInterceptor = config => {
   const { server, record, origin } = mergeConfig(defaultSwetchConfig, config)
 
   return config => {
     const data = {
-      origin: origin || getBrowserOrigin,
+      origin: origin || getBrowserOrigin(),
       resource: config.url,
       init: {
         headers: config.headers.common || config.headers,
