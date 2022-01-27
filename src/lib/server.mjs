@@ -24,8 +24,15 @@ const serializeResponse = async response =>
     body: await response.text(),
   })
 
-const respond = (ctx, headers = {}, body, status) => {
-  const { 'content-encoding': contentEncoding, ...relevantHeaders } = headers
+const respond = (ctx, data) => {
+  const { headers = {}, body } = JSON.parse(data)
+
+  const {
+    'content-encoding': contentEncoding,
+    date,
+    expires,
+    ...relevantHeaders
+  } = headers
 
   ctx.set('Access-Control-Allow-Origin', '*')
   ctx.set('Access-Control-Allow-Methods', '*')
@@ -35,7 +42,6 @@ const respond = (ctx, headers = {}, body, status) => {
   }
 
   ctx.body = body
-  ctx.status = status ?? ctx.status
 }
 
 const getRequestHash = (resource, init) => {
@@ -118,33 +124,28 @@ const server = config => {
       )
 
       if (record) {
-        const response = await fetch(absoluteResource, init)
-        const clone = response.clone()
-
-        const headers = Object.fromEntries(clone.headers.entries())
-        const body = await clone.text()
-
         try {
           await fs.mkdir(requestDirectory, { recursive: true })
         } catch {}
 
+        const response = await fetch(absoluteResource, init)
+
+        const data = await serializeResponse(response)
+
         try {
-          await fs.writeFile(
-            requestDataFilePath,
-            await serializeResponse(response)
-          )
+          await fs.writeFile(requestDataFilePath, data)
         } catch (error) {
-          logger.error(`no data written:`, error)
+          logger.error(`unable to write`, error)
         }
 
-        return respond(ctx, headers, body)
+        return respond(ctx, data)
       }
 
       try {
         const fileContent = await fs.readFile(requestDataFilePath)
-        const { headers, body } = JSON.parse(fileContent)
+        const data = JSON.parse(fileContent)
 
-        return respond(ctx, headers, body)
+        return respond(ctx, data)
       } catch {
         throw {
           message: `no data`,
@@ -154,10 +155,11 @@ const server = config => {
     } catch (error) {
       logger.warn(error.message)
 
-      return respond(
-        ctx,
-        { 'Content-Type': 'application/json' },
-        {
+      ctx.status = error.status ?? 500
+
+      return respond(ctx, {
+        headers: { 'Content-Type': 'application/json' },
+        body: {
           errors: [
             {
               message: error.message,
@@ -165,8 +167,7 @@ const server = config => {
             },
           ],
         },
-        error.status ?? 500
-      )
+      })
     }
   })
 
