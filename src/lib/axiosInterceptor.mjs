@@ -2,10 +2,11 @@ import { defaultSwetchConfig } from './swetch.mjs'
 import { mergeConfig } from './utilities.mjs'
 
 const axiosInterceptor = config => {
-  const { server, record } = mergeConfig(defaultSwetchConfig, config)
+  const { server, record, origin } = mergeConfig(defaultSwetchConfig, config)
 
   return config => {
     const data = {
+      origin: origin || getBrowserOrigin,
       resource: config.url,
       init: {
         headers: config.headers.common || config.headers,
@@ -14,9 +15,18 @@ const axiosInterceptor = config => {
       record,
     }
 
-    config.url = server
-    config.method = 'post'
-    config.data = data
+    const overrides = {
+      url: server,
+      method: 'post',
+      data,
+    }
+
+    Object.assign(config, overrides)
+
+    return {
+      ...config,
+      ...overrides,
+    }
   }
 }
 
