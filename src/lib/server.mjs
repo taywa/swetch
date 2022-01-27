@@ -92,7 +92,7 @@ const server = config => {
 
     const absoluteResource = /^https?:\/\//.test(resource)
       ? resource
-      : `${origin || swetchOrigin || `http://${host}`}${resource}`
+      : `${swetchOrigin || origin || `http://${host}`}${resource}`
 
     const requestDirectory = getResourceDirectory(absoluteResource, init)
     const requestHash = getRequestHash(absoluteResource, init)
