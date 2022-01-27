@@ -4,6 +4,7 @@ import { getBrowserOrigin, mergeConfig } from './utilities.mjs'
 export const defaultSwetchConfig = {
   server: 'http://localhost:8008',
   record: false,
+  origin: null,
 }
 
 const swetch = config => {
