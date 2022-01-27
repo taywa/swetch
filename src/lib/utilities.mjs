@@ -5,3 +5,6 @@ export const mergeConfig = (defaultConfig, config = {}) =>
       config[key] ?? defaultConfig[key],
     ])
   )
+
+export const getBrowserOrigin = () =>
+  typeof location === 'undefined' ? undefined : location.origin
