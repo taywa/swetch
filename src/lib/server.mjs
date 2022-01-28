@@ -142,8 +142,7 @@ const server = config => {
       }
 
       try {
-        const fileContent = await fs.readFile(requestDataFilePath)
-        const data = JSON.parse(fileContent)
+        const data = await fs.readFile(requestDataFilePath)
 
         return respond(ctx, data)
       } catch {
