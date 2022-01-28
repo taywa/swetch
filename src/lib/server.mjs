@@ -36,6 +36,10 @@ const respond = (ctx, data, errors) => {
     return
   }
 
+  if (!data) {
+    return
+  }
+
   const { headers = {}, body } = JSON.parse(data)
 
   const {
