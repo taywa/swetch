@@ -24,7 +24,18 @@ const serializeResponse = async response =>
     body: await response.text(),
   })
 
-const respond = (ctx, data) => {
+const respond = (ctx, data, errors) => {
+  ctx.set('Access-Control-Allow-Origin', '*')
+  ctx.set('Access-Control-Allow-Methods', '*')
+  ctx.set('Access-Control-Allow-Headers', '*')
+
+  if (errors) {
+    ctx.body = {
+      errors,
+    }
+    return
+  }
+
   const { headers = {}, body } = JSON.parse(data)
 
   const {
@@ -34,9 +45,6 @@ const respond = (ctx, data) => {
     ...relevantHeaders
   } = headers
 
-  ctx.set('Access-Control-Allow-Origin', '*')
-  ctx.set('Access-Control-Allow-Methods', '*')
-  ctx.set('Access-Control-Allow-Headers', '*')
   for (const [header, value] of Object.entries(relevantHeaders)) {
     ctx.set(header, value)
   }
@@ -156,17 +164,12 @@ const server = config => {
 
       ctx.status = error.status ?? 500
 
-      return respond(ctx, {
-        headers: { 'Content-Type': 'application/json' },
-        body: {
-          errors: [
-            {
-              message: error.message,
-              details: { requestBody: ctx.request.body },
-            },
-          ],
+      return respond(ctx, null, [
+        {
+          message: error.message,
+          details: { requestBody: ctx.request.body },
         },
-      })
+      ])
     }
   })
 
