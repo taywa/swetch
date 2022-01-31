@@ -8,7 +8,7 @@
     "start": "node src/scripts/server.mjs",
     "dev:server": "NODE_ENV=development nodemon -e mjs --exec \"clear && node src/dev/server.mjs\"",
     "dev:swetch": "NODE_ENV=development nodemon -e mjs --exec \"clear && node src/dev/swetch.mjs\"",
-    "build": "rollup -c rollup.config.mjs",
+    "build": "rm -rf dist/* && rollup -c rollup.config.mjs",
     "prepublishOnly": "npm run build"
   },
   "author": "Taywa GmbH",
