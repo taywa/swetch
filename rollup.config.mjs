@@ -1,37 +1,35 @@
-import path from 'path'
 import { babel } from '@rollup/plugin-babel'
 
-const outputDir = 'dist'
+const buildDir = 'dist'
 
-export default {
-  external: [
-    'node-fetch',
-    'isomorphic-fetch',
-    'koa',
-    'koa-bodyparser',
-    'crypto',
-    'fs',
-    'path',
-    'os',
-  ],
-  input: [
-    'src/lib/server.mjs',
-    'src/lib/swetch.mjs',
-    'src/lib/axiosInterceptor.mjs',
-  ],
-  output: [
-    {
-      dir: 'esmodules',
-      format: 'esm',
+const modules = ['server', 'swetch', 'axiosInterceptor']
+const formats = [{ format: 'esm', extension: 'mjs' }, { format: 'cjs' }]
+
+const config = formats.flatMap(({ format, extension = format }) =>
+  modules.map(moduleName => ({
+    external: [
+      'node-fetch',
+      'isomorphic-fetch',
+      'koa',
+      'koa-bodyparser',
+      'crypto',
+      'fs',
+      'path',
+      'os',
+    ],
+    plugins: [
+      babel({
+        babelHelpers: 'bundled',
+        presets: ['@babel/preset-env'],
+      }),
+    ],
+    input: `src/lib/${moduleName}.mjs`,
+    output: {
+      file: `${buildDir}/${format}/${moduleName}.${extension}`,
+      format,
+      exports: 'named',
     },
-    {
-      dir: 'commonjs',
-      format: 'cjs',
-    },
-  ].map(({ dir, ...output }) => ({
-    ...output,
-    exports: 'named',
-    dir: path.join(outputDir, dir),
-  })),
-  plugins: [babel({ babelHelpers: 'bundled', presets: ['@babel/preset-env'] })],
-}
+  }))
+)
+
+export default config
