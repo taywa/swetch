@@ -1,11 +1,9 @@
 import fetch from 'isomorphic-fetch'
-import { getBrowserOrigin, mergeConfig } from './utilities.mjs'
-
-export const defaultSwetchConfig = {
-  server: 'http://localhost:8008',
-  record: false,
-  origin: null,
-}
+import {
+  defaultSwetchConfig,
+  getBrowserOrigin,
+  mergeConfig,
+} from './utilities.mjs'
 
 const swetch = config => {
   const { server, record, origin } = mergeConfig(defaultSwetchConfig, config)
