@@ -3,6 +3,7 @@
   "type": "module",
   "version": "1.2.5",
   "description": "Easily mock your real API data, simply by using your app.",
+  "sideEffects": false,
   "scripts": {
     "start": "node src/scripts/server.mjs",
     "dev:server": "NODE_ENV=development nodemon -e mjs --exec \"clear && node src/dev/server.mjs\"",
