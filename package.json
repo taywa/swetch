@@ -3,11 +3,12 @@
   "type": "module",
   "version": "1.2.5",
   "description": "Easily mock your real API data, simply by using your app.",
-  "main": "src/lib/index.mjs",
   "scripts": {
     "start": "node src/scripts/server.mjs",
     "dev:server": "NODE_ENV=development nodemon -e mjs --exec \"clear && node src/dev/server.mjs\"",
-    "dev:swetch": "NODE_ENV=development nodemon -e mjs --exec \"clear && node src/dev/swetch.mjs\""
+    "dev:swetch": "NODE_ENV=development nodemon -e mjs --exec \"clear && node src/dev/swetch.mjs\"",
+    "build": "rollup -c rollup.config.mjs",
+    "prepublishOnly": "npm run build"
   },
   "author": "Taywa GmbH",
   "license": "GPL-3.0",
@@ -18,12 +19,16 @@
     "node-fetch": "3.2.0"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.16.11",
+    "@rollup/plugin-babel": "^5.3.0",
     "nodemon": "2.0.15",
-    "prettier": "2.5.1"
+    "prettier": "2.5.1",
+    "rollup": "^2.66.1"
   },
   "files": [
     "src/lib/*",
-    "src/scripts/*"
+    "src/scripts/*",
+    "src/dist/*"
   ],
   "keywords": [
     "mock",
