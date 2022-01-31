@@ -30,7 +30,7 @@
   "files": [
     "src/lib/*",
     "src/scripts/*",
-    "src/dist/*"
+    "dist/*"
   ],
   "keywords": [
     "mock",
