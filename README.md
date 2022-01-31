@@ -84,9 +84,9 @@ import axiosInterceptor from '@taywa/swetch/src/lib/axiosInterceptor'
 import server from '@taywa/swetch/src/lib/server'
 
 // transpiled es modules
-import swetch from '@taywa/swetch/dist/mjs/swetch'
-import axiosInterceptor from '@taywa/swetch/dist/mjs/axiosInterceptor'
-import server from '@taywa/swetch/dist/mjs/server'
+import swetch from '@taywa/swetch/dist/esm/swetch'
+import axiosInterceptor from '@taywa/swetch/dist/esm/axiosInterceptor'
+import server from '@taywa/swetch/dist/esm/server'
 
 // transpiled common js
 const swetch = require('@taywa/swetch/dist/cjs/swetch')
