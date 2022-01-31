@@ -1,7 +1,7 @@
 {
   "name": "@taywa/swetch",
   "type": "module",
-  "version": "1.2.5",
+  "version": "2.0.0",
   "description": "Easily mock your real API data, simply by using your app.",
   "sideEffects": false,
   "scripts": {
