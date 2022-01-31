@@ -16,11 +16,11 @@ We need something that can save the request data.
 npx @taywa/swetch
 ```
 
+> Needs node 14+ for latest syntax. We recommend running this in a docker container.
+
 ### Get your fake fetch
 
 ```javascript
-import { swetch } from '@taywa/swetch'
-
 const fetch = swetch({ record: process.env.SWETCH_RECORD })
 ```
 
@@ -31,8 +31,6 @@ const fetch = swetch({ record: process.env.SWETCH_RECORD })
 #### Plain old fetch
 
 ```javascript
-import { swetch } from '@taywa/swetch'
-
 const testFetch = swetch(/* swetch config */)
 
 testFetch(
@@ -56,9 +54,6 @@ testFetch(
 #### Apollo Client
 
 ```javascript
-import { ApolloClient, HttpLink } from '@apollo/client'
-import { swetch } from '@taywa/swetch'
-
 const testClient = new ApolloClient({
   link: new HttpLink({
     fetch: swetch(/* swetch config */)
@@ -69,9 +64,6 @@ const testClient = new ApolloClient({
 #### Axios
 
 ```javascript
-import axios from 'axios'
-import { axiosInterceptor } from '@taywa/swetch'
-
 const testInstance = axios.create()
 
 testInstance.interceptors.request.use(
@@ -80,6 +72,27 @@ testInstance.interceptors.request.use(
 ```
 
 > Configuring these clients might vary slightly when using versions made for specific frameworks.
+
+## Package exports
+
+This package doesn't provide a main entry point, since it provides separate server and browser modules (f.e. server uses `fs`, which isn't available in browsers and would brick browser imports). There are several exports for this package, pick the one that works best for you.
+
+```javascript
+// latest syntax es modules
+import swetch from '@taywa/swetch/src/lib/swetch.mjs'
+import axiosInterceptor from '@taywa/swetch/src/lib/axiosInterceptor.mjs'
+import server from '@taywa/swetch/src/lib/server.mjs'
+
+// transpiled es modules
+import swetch from '@taywa/swetch/dist/esmodules/swetch'
+import axiosInterceptor from '@taywa/swetch/dist/esmodules/axiosInterceptor'
+import server from '@taywa/swetch/dist/esmodules/server'
+
+// transpiled common js
+const swetch = require('@taywa/swetch/dist/commonjs/swetch')
+const axiosInterceptor = require('@taywa/swetch/dist/commonjs/axiosInterceptor')
+const server = require('@taywa/swetch/dist/commonjs/server')
+```
 
 ### Hit record
 
@@ -101,8 +114,6 @@ When not recording, that data is used instead of passing the request on.
 | getRelativeResourceDirectory | [server:44](src/lib/server.mjs) | A function taking a URL string & an init object, and returning a directory path string. Allows for customization of subfolders. _Not available via cli/npx._ |
 
 ```javascript
-import { server } from '@taywa/swetch'
-
 server({
   port: 8009,
   dataDirectory: '.responses',
@@ -117,13 +128,19 @@ server({
 | --- | --- | --- |
 | server | `'http://localhost:8008'` | The swetch server address |
 | record | `false` | Whether to save requests made by this instance |
+| origin |  | The host where your data resides (falls back onto `location.host`). Only required if swetch server doesn't run on the origin, f.e. if it runs in a docker container. |
 
 ```javascript
-import { swetch } from '@taywa/swetch'
-
 const testFetch = swetch({
   server: 'http://localhost:8009',
   record: !process.env.IS_CI,
+  origin: 'http://mycontainer',
+})
+
+const testInterceptor = axiosInterceptor({
+  server: 'http://localhost:8009',
+  record: !process.env.IS_CI,
+  origin: 'http://mycontainer',
 })
 ```
 
