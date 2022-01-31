@@ -79,19 +79,19 @@ This package doesn't provide a main entry point, since it provides separate serv
 
 ```javascript
 // latest syntax es modules
-import swetch from '@taywa/swetch/src/lib/swetch.mjs'
-import axiosInterceptor from '@taywa/swetch/src/lib/axiosInterceptor.mjs'
-import server from '@taywa/swetch/src/lib/server.mjs'
+import swetch from '@taywa/swetch/src/lib/swetch'
+import axiosInterceptor from '@taywa/swetch/src/lib/axiosInterceptor'
+import server from '@taywa/swetch/src/lib/server'
 
 // transpiled es modules
-import swetch from '@taywa/swetch/dist/esmodules/swetch'
-import axiosInterceptor from '@taywa/swetch/dist/esmodules/axiosInterceptor'
-import server from '@taywa/swetch/dist/esmodules/server'
+import swetch from '@taywa/swetch/dist/mjs/swetch'
+import axiosInterceptor from '@taywa/swetch/dist/mjs/axiosInterceptor'
+import server from '@taywa/swetch/dist/mjs/server'
 
 // transpiled common js
-const swetch = require('@taywa/swetch/dist/commonjs/swetch')
-const axiosInterceptor = require('@taywa/swetch/dist/commonjs/axiosInterceptor')
-const server = require('@taywa/swetch/dist/commonjs/server')
+const swetch = require('@taywa/swetch/dist/cjs/swetch')
+const axiosInterceptor = require('@taywa/swetch/dist/cjs/axiosInterceptor')
+const server = require('@taywa/swetch/dist/cjs/server')
 ```
 
 ### Hit record
