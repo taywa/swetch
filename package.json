@@ -6,8 +6,8 @@
   "sideEffects": false,
   "scripts": {
     "start": "node src/scripts/server.mjs",
-    "dev:server": "NODE_ENV=development nodemon -e mjs --exec \"clear && node src/dev/server.mjs\"",
-    "dev:swetch": "NODE_ENV=development nodemon -e mjs --exec \"clear && node src/dev/swetch.mjs\"",
+    "dev:server": "NODE_ENV=development nodemon -e mjs --exec \"clear && node dev/server.mjs\"",
+    "dev:swetch": "NODE_ENV=development nodemon -e mjs --exec \"clear && node dev/swetch.mjs\"",
     "build": "rm -rf dist/* && rollup -c rollup.config.mjs",
     "prepublishOnly": "npm run build"
   },
