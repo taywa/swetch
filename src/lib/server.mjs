@@ -19,10 +19,14 @@ const getLogger = requestHash => {
 }
 
 const serializeResponse = async response =>
-  JSON.stringify({
-    headers: Object.fromEntries(response.headers.entries()),
-    body: await response.text(),
-  })
+  JSON.stringify(
+    {
+      headers: Object.fromEntries(response.headers.entries()),
+      body: await response.text(),
+    },
+    null,
+    2
+  )
 
 const respond = (ctx, data, errors) => {
   ctx.set('Access-Control-Allow-Origin', '*')
