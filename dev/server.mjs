@@ -1,3 +1,3 @@
-import { server } from '../lib/index.mjs'
+import server from '../src/lib/server.mjs'
 
 server()

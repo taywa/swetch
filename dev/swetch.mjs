@@ -1,4 +1,4 @@
-import { swetch } from '../lib/index.mjs'
+import swetch from '../src/lib/swetch.mjs'
 
 const doRecord = !!process.env.RECORD
 if (doRecord) {
