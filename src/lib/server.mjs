@@ -90,11 +90,19 @@ const defaultServerConfig = {
   dataDirectory: '.swetch',
   getRequestHash,
   getRelativeResourceDirectory,
+  serializeResponse,
+  respond,
 }
 
 const server = config => {
-  const { port, dataDirectory, getRequestHash, getRelativeResourceDirectory } =
-    mergeConfig(defaultServerConfig, config)
+  const {
+    port,
+    dataDirectory,
+    getRequestHash,
+    getRelativeResourceDirectory,
+    serializeResponse,
+    respond,
+  } = mergeConfig(defaultServerConfig, config)
 
   const dataRoot = path.join(process.cwd(), dataDirectory)
   const getResourceDirectory = (resource, request) =>
