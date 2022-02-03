@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.0] - 2022-02-03
+
+### Added
+
+- Server option for ignoring headers
+- Server option for customizing data serialization
+- Server option for customizing responses
+- Server now adds Date, Expires and Age headers with current request date when responding
+
+### Changed
+
+- JSON data is now formatted with 2 spaces by default
+- Date, Expires, Age and Content-Encoding headers are now removed before saving
+
 ## [3.0.0] - 2022-01-31
 
 ### Changed
