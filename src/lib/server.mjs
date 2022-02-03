@@ -18,14 +18,12 @@ const getLogger = requestHash => {
   )
 }
 
-const serializeResponse = async response => {
-  const {
-    date,
-    expires,
-    age,
-    'content-encoding': contentEncoding,
-    ...headers
-  } = Object.fromEntries(response.headers.entries())
+const serializeResponse = async ({ ignoreHeaders }, response) => {
+  const headers = Object.fromEntries(response.headers.entries())
+
+  for (const headerName of ignoreHeaders) {
+    delete headers[headerName]
+  }
 
   return JSON.stringify(
     {
@@ -37,7 +35,7 @@ const serializeResponse = async response => {
   )
 }
 
-const respond = (ctx, data, errors) => {
+const respond = (_, ctx, data, errors) => {
   ctx.set('Access-Control-Allow-Origin', '*')
   ctx.set('Access-Control-Allow-Methods', '*')
   ctx.set('Access-Control-Allow-Headers', '*')
@@ -88,6 +86,7 @@ const getRelativeResourceDirectory = resource => {
 const defaultServerConfig = {
   port: 8008,
   dataDirectory: '.swetch',
+  ignoreHeaders: ['date', 'expires', 'age', 'content-encoding'],
   getRequestHash,
   getRelativeResourceDirectory,
   serializeResponse,
@@ -95,6 +94,7 @@ const defaultServerConfig = {
 }
 
 const server = config => {
+  const runtimeConfig = mergeConfig(defaultServerConfig, config)
   const {
     port,
     dataDirectory,
@@ -102,7 +102,7 @@ const server = config => {
     getRelativeResourceDirectory,
     serializeResponse,
     respond,
-  } = mergeConfig(defaultServerConfig, config)
+  } = runtimeConfig
 
   const dataRoot = path.join(process.cwd(), dataDirectory)
   const getResourceDirectory = (resource, request) =>
@@ -115,7 +115,7 @@ const server = config => {
     await next()
 
     if (ctx.request.method.toUpperCase() === 'OPTIONS') {
-      return respond(ctx)
+      return respond(runtimeConfig, ctx)
     }
 
     const { resource, init, record, origin: swetchOrigin } = ctx.request.body
@@ -161,7 +161,7 @@ const server = config => {
 
         const response = await fetch(absoluteResource, init)
 
-        const data = await serializeResponse(response)
+        const data = await serializeResponse(runtimeConfig, response)
 
         try {
           await fs.writeFile(requestDataFilePath, data)
@@ -169,13 +169,13 @@ const server = config => {
           logger.error(`unable to write`, error)
         }
 
-        return respond(ctx, data)
+        return respond(runtimeConfig, ctx, data)
       }
 
       try {
         const data = await fs.readFile(requestDataFilePath)
 
-        return respond(ctx, data)
+        return respond(runtimeConfig, ctx, data)
       } catch {
         throw {
           message: `no data`,
@@ -187,7 +187,7 @@ const server = config => {
 
       ctx.status = error.status ?? 500
 
-      return respond(ctx, null, [
+      return respond(runtimeConfig, ctx, null, [
         {
           message: error.message,
           details: { requestBody: ctx.request.body },
