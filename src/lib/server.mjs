@@ -18,20 +18,34 @@ const getLogger = requestHash => {
   )
 }
 
-const serializeResponse = async response =>
-  JSON.stringify(
+const serializeResponse = async response => {
+  const {
+    date,
+    expires,
+    age,
+    'content-encoding': contentEncoding,
+    ...headers
+  } = Object.fromEntries(response.headers.entries())
+
+  return JSON.stringify(
     {
-      headers: Object.fromEntries(response.headers.entries()),
+      headers,
       body: await response.text(),
     },
     null,
     2
   )
+}
 
 const respond = (ctx, data, errors) => {
   ctx.set('Access-Control-Allow-Origin', '*')
   ctx.set('Access-Control-Allow-Methods', '*')
   ctx.set('Access-Control-Allow-Headers', '*')
+
+  const dateString = new Date().toUTCString()
+  ctx.set('Date', dateString)
+  ctx.set('Expires', dateString)
+  ctx.set('Age', '0')
 
   if (errors) {
     ctx.body = {
@@ -46,14 +60,7 @@ const respond = (ctx, data, errors) => {
 
   const { headers = {}, body } = JSON.parse(data)
 
-  const {
-    'content-encoding': contentEncoding,
-    date,
-    expires,
-    ...relevantHeaders
-  } = headers
-
-  for (const [header, value] of Object.entries(relevantHeaders)) {
+  for (const [header, value] of Object.entries(headers)) {
     ctx.set(header, value)
   }
 
