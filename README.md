@@ -108,19 +108,27 @@ When not recording, that data is used instead of passing the request on.
 
 | Property | Default | Info |
 | --- | --- | --- |
-| port | `8008` | The port the server should listen on |
-| dataDirectory | `'.swetch'` | The directory to save data to |
-| getRequestHash | [server:33](src/lib/server.mjs) | A function taking a request URL string & an init object, and returning a string identifying that request. Allows for customization if requests contain timestamped data. _Not available via cli/npx._ |
-| getRelativeResourceDirectory | [server:44](src/lib/server.mjs) | A function taking a URL string & an init object, and returning a directory path string. Allows for customization of subfolders. _Not available via cli/npx._ |
+| port | `8008` | The port the server should listen on. |
+| dataDirectory | `'.swetch'` | The directory to save data to. |
+| ignoreHeaders | `['date', 'expires', 'age', 'content-encoding']` | The headers to discard before saving data. All lowercase, not merged with defaults. |
+| getRequestHash | [getRequestHash.mjs](src/lib/server/getRequestHash.mjs) | A function taking a request URL string & an init object, and returning a string identifying that request. Allows for customization if requests contain timestamped data. _Not available via cli/npx._ |
+| getRelativeResourceDirectory | [getRelativeResourceDirectory.mjs](src/lib/server/getRelativeResourceDirectory.mjs) | A function taking a URL string & an init object, and returning a directory path string. Allows for customization of subfolders. _Not available via cli/npx._ |
+| serializeResponse | [serializeResponse.mjs](src/lib/server/serializeResponse.mjs) | A function taking the server config object and a Response, and returning a json string to be saved. Can be async. _Not available via cli/npx._ |
+| respond | [respond.mjs](src/lib/server/respond.mjs) | A function taking the server config object, the Koa `ctx`, a json string (originally returned from `serializeResponse`) and an errors array to set a response on [`ctx`](https://koajs.com/#context). _Not available via cli/npx._ |
 
 ```javascript
 server({
   port: 8009,
   dataDirectory: '.responses',
+  ignoreHeaders: ['date', 'expires', 'connection'],
   getRequestHash: (resource, init) => resource.replace(/\/+/g, '-'),
-  getRelativeResourceDirectory: (resource, init) => '/'
+  getRelativeResourceDirectory: (resource, init) => '/',
+  serializeResponse: async (config, response) => await response.text(),
+  respond: (config, ctx, data, errors) => { ctx.body = 'Hello Swetch' }
 })
 ```
+
+> [Defaults](src/lib/server/defaultServerConfig.mjs)
 
 ## Swetch
 
@@ -143,6 +151,8 @@ const testInterceptor = axiosInterceptor({
   origin: 'http://mycontainer',
 })
 ```
+
+> [Defaults](src/lib/swetch/defaultSwetchConfig.mjs)
 
 ## How it works
 
