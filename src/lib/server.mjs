@@ -1,11 +1,12 @@
 import Koa from 'koa'
 import koaBodyparser from 'koa-bodyparser'
 import fetch from 'node-fetch'
-import crypto from 'crypto'
 import { promises as fs } from 'fs'
 import os from 'os'
 import path from 'path'
+
 import { mergeConfig } from './utilities.mjs'
+import defaultServerConfig from './server/defaultServerConfig.mjs'
 
 const getLogger = requestHash => {
   const shortHash = requestHash.substring(0, 8)
@@ -16,81 +17,6 @@ const getLogger = requestHash => {
       (...consoleArguments) => console[method](shortHash, ...consoleArguments),
     ])
   )
-}
-
-const serializeResponse = async ({ ignoreHeaders }, response) => {
-  const headers = Object.fromEntries(response.headers.entries())
-
-  for (const headerName of ignoreHeaders) {
-    delete headers[headerName]
-  }
-
-  return JSON.stringify(
-    {
-      headers,
-      body: await response.text(),
-    },
-    null,
-    2
-  )
-}
-
-const respond = (_, ctx, data, errors) => {
-  ctx.set('Access-Control-Allow-Origin', '*')
-  ctx.set('Access-Control-Allow-Methods', '*')
-  ctx.set('Access-Control-Allow-Headers', '*')
-
-  const dateString = new Date().toUTCString()
-  ctx.set('Date', dateString)
-  ctx.set('Expires', dateString)
-  ctx.set('Age', '0')
-
-  if (errors) {
-    ctx.body = {
-      errors,
-    }
-    return
-  }
-
-  if (!data) {
-    return
-  }
-
-  const { headers = {}, body } = JSON.parse(data)
-
-  for (const [header, value] of Object.entries(headers)) {
-    ctx.set(header, value)
-  }
-
-  ctx.body = body
-}
-
-const getRequestHash = (resource, init) => {
-  const requestString = `${resource}${JSON.stringify(init)}`
-
-  const requestHash = crypto
-    .createHash('sha1')
-    .update(requestString)
-    .digest('hex')
-
-  return requestHash
-}
-
-const getRelativeResourceDirectory = resource => {
-  const fromPath = resource.replace(/^https?:\/\/[^/]+/, '')
-  const onlyPath = fromPath.replace(/\?.*/, '')
-
-  return onlyPath
-}
-
-const defaultServerConfig = {
-  port: 8008,
-  dataDirectory: '.swetch',
-  ignoreHeaders: ['date', 'expires', 'age', 'content-encoding'],
-  getRequestHash,
-  getRelativeResourceDirectory,
-  serializeResponse,
-  respond,
 }
 
 const server = config => {
