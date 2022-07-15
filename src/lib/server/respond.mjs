@@ -25,7 +25,7 @@ const respond = (_, ctx, data, errors) => {
     ctx.set(header, value)
   }
 
-  ctx.body = body
+  ctx.body = JSON.stringify(body)
 }
 
 export default respond

@@ -8,7 +8,7 @@ const serializeResponse = async ({ ignoreHeaders }, response) => {
   return JSON.stringify(
     {
       headers,
-      body: await response.text(),
+      body: await response.json(),
     },
     null,
     2
