@@ -42,7 +42,8 @@ const server = config => {
 
     const requestMethod = ctx.request.method.toUpperCase()
     if (requestMethod === 'OPTIONS' || requestMethod === 'HEAD') {
-      return respond(runtimeConfig, ctx)
+      ctx.body = undefined
+      return
     }
 
     const { resource, init, record, origin: swetchOrigin } = ctx.request.body
