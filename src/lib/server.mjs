@@ -40,7 +40,8 @@ const server = config => {
   koa.use(async (ctx, next) => {
     await next()
 
-    if (ctx.request.method.toUpperCase() === 'OPTIONS') {
+    const requestMethod = ctx.request.method.toUpperCase()
+    if (requestMethod === 'OPTIONS' || requestMethod === 'HEAD') {
       return respond(runtimeConfig, ctx)
     }
 
