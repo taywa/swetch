@@ -8,31 +8,17 @@ import path from 'path'
 import { mergeConfig } from './utilities.mjs'
 import defaultServerConfig from './server/defaultServerConfig.mjs'
 
-const getLogger = requestHash => {
-  const shortHash = requestHash.substring(0, 8)
+/** @type {(request: any) => Request} */
+const as_request = request =>
+  /** @type {Request} */ (/** @type {unknown} */ (request))
 
-  return Object.fromEntries(
-    ['info', 'warn', 'error'].map(method => [
-      method,
-      (...consoleArguments) => console[method](shortHash, ...consoleArguments),
-    ])
-  )
-}
-
+/** @type {(user_options?: Partial<options>) => Koa} */
 const server = config => {
-  const runtimeConfig = mergeConfig(defaultServerConfig, config)
-  const {
-    port,
-    dataDirectory,
-    getRequestHash,
-    getRelativeResourceDirectory,
-    serializeResponse,
-    respond,
-  } = runtimeConfig
+  const runtimeConfig = mergeConfig(defaultServerConfig, config ?? {})
+  const { port, dataDirectory, respond, resolve_url, resolve_file_path } =
+    runtimeConfig
 
   const dataRoot = path.join(process.cwd(), dataDirectory)
-  const getResourceDirectory = (resource, request) =>
-    path.join(dataRoot, getRelativeResourceDirectory(resource, request))
 
   const koa = new Koa()
 
@@ -46,81 +32,65 @@ const server = config => {
       return
     }
 
-    const { resource, init, record, origin: swetchOrigin } = ctx.request.body
-    const { origin, host } = ctx.request.headers
+    const target_url = resolve_url(runtimeConfig, ctx.URL, as_request(ctx.req))
+    const relative_file_path = await resolve_file_path(
+      runtimeConfig,
+      ctx.URL,
+      as_request(ctx.req)
+    )
+    const file_path = path.join(runtimeConfig.dataDirectory, relative_file_path)
 
-    const absoluteResource = /^https?:\/\//.test(resource)
-      ? resource
-      : `${swetchOrigin || origin || `http://${host}`}${resource}`
-
-    const requestDirectory = getResourceDirectory(absoluteResource, init)
-    const requestHash = getRequestHash(absoluteResource, init)
-    const requestDataFilePath = `${path.join(
-      requestDirectory,
-      requestHash
-    )}.json`
-
-    const logger = getLogger(requestHash)
+    const record = true
 
     try {
-      if (!resource) {
-        throw {
-          message: `missing resource: '${resource}'`,
-          status: 400,
-        }
-      }
-      if (!init) {
-        throw {
-          message: `missing init: '${resource}'`,
-          status: 400,
-        }
-      }
-
-      logger.info(
+      console.info(
         `${record ? 'recording ' : ''}${
-          init.method || 'get'
-        } ${absoluteResource}`
+          requestMethod || 'get'
+        } ${relative_file_path}`
       )
 
       if (record) {
+        // create necessary folders if required
         try {
-          await fs.mkdir(requestDirectory, { recursive: true })
+          const directory = path.dirname(file_path)
+          await fs.mkdir(directory, { recursive: true })
         } catch {}
 
-        const response = await fetch(absoluteResource, init)
-
-        const data = await serializeResponse(runtimeConfig, response)
+        const response = await fetch(target_url, { method: requestMethod })
+        const array_buffer = await response.arrayBuffer()
+        const buffer = Buffer.from(array_buffer)
 
         try {
-          await fs.writeFile(requestDataFilePath, data)
+          await fs.writeFile(file_path, buffer)
         } catch (error) {
-          logger.error(`unable to write`, error)
+          console.error(`unable to write`, error)
         }
 
-        return respond(runtimeConfig, ctx, data)
+        ctx.body = buffer
+
+        return
       }
 
       try {
-        const data = await fs.readFile(requestDataFilePath)
+        const buffer = await fs.readFile(file_path)
 
-        return respond(runtimeConfig, ctx, data)
+        ctx.body = new Response(buffer)
+        return
       } catch {
         throw {
           message: `no data`,
           status: 404,
         }
       }
-    } catch (error) {
-      logger.warn(error.message)
-
+    } catch (/** @type {any} */ error) {
       ctx.status = error.status ?? 500
 
-      return respond(runtimeConfig, ctx, null, [
-        {
+      ctx.body = new Response(
+        JSON.stringify({
           message: error.message,
           details: { requestBody: ctx.request.body },
-        },
-      ])
+        })
+      )
     }
   })
 
@@ -128,6 +98,8 @@ const server = config => {
 
   console.info(`http://${os.hostname()}:${port}`)
   console.info(dataRoot)
+
+  return koa
 }
 
 export default server
