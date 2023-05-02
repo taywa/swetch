@@ -1,37 +1,34 @@
 import fetch from 'isomorphic-fetch'
-import { expect, test, beforeAll } from 'vitest'
+import { expect, test, beforeAll, describe } from 'vitest'
 import server from '../src/lib/server.mjs'
+import { from_url_map } from '../src/lib/server/from_url_map.mjs'
 
 beforeAll(() => {
   server({
-    resolve_url: (_, url) => {
-      url.hostname = 'jsonplaceholder.typicode.com'
-      url.protocol = 'https'
-      url.port = ''
-
-      return url
-    },
+    resolve_url: from_url_map(['/', 'https://jsonplaceholder.typicode.com']),
   })
 })
 
-test('gets from jsonplaceholder', async () => {
-  const response = await fetch('http://localhost:8008/posts')
+describe('server', () => {
+  test('gets from jsonplaceholder', async () => {
+    const response = await fetch('http://127.0.0.1:8008/posts')
 
-  expect(response.status).toBe(200)
+    expect(response.status).toBe(200)
 
-  const json = await response.json()
+    const json = await response.json()
 
-  expect(json).toHaveLength(100)
-})
-
-test('posts to jsonplaceholder', async () => {
-  const response = await fetch('http://localhost:8008/posts', {
-    method: 'post',
+    expect(json).toHaveLength(100)
   })
 
-  expect(response.status).toBe(200)
+  test('posts to jsonplaceholder', async () => {
+    const response = await fetch('http://127.0.0.1:8008/posts', {
+      method: 'post',
+    })
 
-  const json = await response.json()
+    expect(response.status).toBe(200)
 
-  expect(json).toHaveProperty('id', 101)
+    const json = await response.json()
+
+    expect(json).toHaveProperty('id', 101)
+  })
 })
