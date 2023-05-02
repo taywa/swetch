@@ -1,5 +1,5 @@
 const defaultSwetchConfig = {
-  server: 'http://localhost:8008',
+  server: 'http://127.0.0.1:8008',
   record: false,
   origin: null,
 }

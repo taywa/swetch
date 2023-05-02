@@ -7,12 +7,12 @@ describe('from_url_map creates resolver', () => {
   test('which ignores string target paths', () => {
     const resolve_url = from_url_map(['/', 'https://other.host/ignored/path'])
 
-    const path_url = new URL('http://localhost:8008/rest/api')
+    const path_url = new URL('http://127.0.0.1:8008/rest/api')
     expect(
       resolve_url(defaultServerConfig, path_url, Request(path_url))
     ).toStrictEqual(new URL('https://other.host/rest/api'))
 
-    const index_url = new URL('http://localhost:8008')
+    const index_url = new URL('http://127.0.0.1:8008')
     expect(
       resolve_url(defaultServerConfig, index_url, Request(index_url))
     ).toStrictEqual(new URL('https://other.host'))
@@ -24,12 +24,12 @@ describe('from_url_map creates resolver', () => {
       ['/graphql', 'https://graphql.host/ignored/path']
     )
 
-    const rest_url = new URL('http://localhost:8008/rest/api')
+    const rest_url = new URL('http://127.0.0.1:8008/rest/api')
     expect(
       resolve_url(defaultServerConfig, rest_url, Request(rest_url))
     ).toStrictEqual(new URL('https://other.host/rest/api'))
 
-    const graphql_url = new URL('http://localhost:8008/graphql')
+    const graphql_url = new URL('http://127.0.0.1:8008/graphql')
     expect(
       resolve_url(defaultServerConfig, graphql_url, Request(graphql_url))
     ).toStrictEqual(new URL('https://graphql.host/graphql'))
@@ -41,13 +41,13 @@ describe('from_url_map creates resolver', () => {
       [/^\/everything-after.*/, 'http://everything.after']
     )
 
-    const exact_url = new URL('http://localhost:8008/everything-after')
+    const exact_url = new URL('http://127.0.0.1:8008/everything-after')
     expect(
       resolve_url(defaultServerConfig, exact_url, Request(exact_url))
     ).toStrictEqual(new URL('https://exacty.everything.after/everything-after'))
 
     const wildcard_url = new URL(
-      'http://localhost:8008/everything-after/allowed'
+      'http://127.0.0.1:8008/everything-after/allowed'
     )
     expect(
       resolve_url(defaultServerConfig, wildcard_url, Request(wildcard_url))
@@ -60,13 +60,13 @@ describe('from_url_map creates resolver', () => {
       [/^\/everything-after.*/, 'http://everything.after']
     )
 
-    const exact_url = new URL('http://localhost:8008/everything-after')
+    const exact_url = new URL('http://127.0.0.1:8008/everything-after')
     expect(
       resolve_url(defaultServerConfig, exact_url, Request(exact_url))
     ).toStrictEqual(new URL('https://exacty.everything.after/everything-after'))
 
     const wildcard_url = new URL(
-      'http://localhost:8008/everything-after/allowed'
+      'http://127.0.0.1:8008/everything-after/allowed'
     )
     expect(
       resolve_url(defaultServerConfig, wildcard_url, Request(wildcard_url))
@@ -77,7 +77,7 @@ describe('from_url_map creates resolver', () => {
     // without any entries
     const resolve_url_from_empty_map = from_url_map()
 
-    const url = new URL('http://localhost:8008')
+    const url = new URL('http://127.0.0.1:8008')
     expect(() => {
       resolve_url_from_empty_map(defaultServerConfig, url, Request(url))
     }).toThrowError(new Error('[resolve_url] no source for `/`'))

@@ -33,19 +33,16 @@ const fetch = swetch({ record: process.env.SWETCH_RECORD })
 ```javascript
 const testFetch = swetch(/* swetch config */)
 
-testFetch(
-  'http://your.app/some/resource',
-  {
-    method: 'post',
-    mode: 'cors',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      message: 'cool'
-    })
-  }
-)
+testFetch('http://your.app/some/resource', {
+  method: 'post',
+  mode: 'cors',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    message: 'cool',
+  }),
+})
   .then(response => response.json())
   .then(json => {})
   .catch(error => {})
@@ -56,8 +53,8 @@ testFetch(
 ```javascript
 const testClient = new ApolloClient({
   link: new HttpLink({
-    fetch: swetch(/* swetch config */)
-  })
+    fetch: swetch(/* swetch config */),
+  }),
 })
 ```
 
@@ -66,9 +63,7 @@ const testClient = new ApolloClient({
 ```javascript
 const testInstance = axios.create()
 
-testInstance.interceptors.request.use(
-  axiosInterceptor(/* swetch config */)
-)
+testInstance.interceptors.request.use(axiosInterceptor(/* swetch config */))
 ```
 
 > Configuring these clients might vary slightly when using versions made for specific frameworks.
@@ -106,15 +101,15 @@ When not recording, that data is used instead of passing the request on.
 
 ## Server
 
-| Property | Default | Info |
-| --- | --- | --- |
-| port | `8008` | The port the server should listen on. |
-| dataDirectory | `'.swetch'` | The directory to save data to. |
-| ignoreHeaders | `['date', 'expires', 'age', 'content-encoding']` | The headers to discard before saving data. All lowercase, not merged with defaults. |
-| getRequestHash | [getRequestHash.mjs](src/lib/server/getRequestHash.mjs) | A function taking a request URL string & an init object, and returning a string identifying that request. Allows for customization if requests contain timestamped data. _Not available via cli/npx._ |
-| getRelativeResourceDirectory | [getRelativeResourceDirectory.mjs](src/lib/server/getRelativeResourceDirectory.mjs) | A function taking a URL string & an init object, and returning a directory path string. Allows for customization of subfolders. _Not available via cli/npx._ |
-| serializeResponse | [serializeResponse.mjs](src/lib/server/serializeResponse.mjs) | A function taking the server config object and a Response, and returning a json string to be saved. Can be async. _Not available via cli/npx._ |
-| respond | [respond.mjs](src/lib/server/respond.mjs) | A function taking the server config object, the Koa `ctx`, a json string (originally returned from `serializeResponse`) and an errors array to set a response on [`ctx`](https://koajs.com/#context). _Not available via cli/npx._ |
+| Property                     | Default                                                                             | Info                                                                                                                                                                                                                               |
+| ---------------------------- | ----------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| port                         | `8008`                                                                              | The port the server should listen on.                                                                                                                                                                                              |
+| dataDirectory                | `'.swetch'`                                                                         | The directory to save data to.                                                                                                                                                                                                     |
+| ignoreHeaders                | `['date', 'expires', 'age', 'content-encoding']`                                    | The headers to discard before saving data. All lowercase, not merged with defaults.                                                                                                                                                |
+| getRequestHash               | [getRequestHash.mjs](src/lib/server/getRequestHash.mjs)                             | A function taking a request URL string & an init object, and returning a string identifying that request. Allows for customization if requests contain timestamped data. _Not available via cli/npx._                              |
+| getRelativeResourceDirectory | [getRelativeResourceDirectory.mjs](src/lib/server/getRelativeResourceDirectory.mjs) | A function taking a URL string & an init object, and returning a directory path string. Allows for customization of subfolders. _Not available via cli/npx._                                                                       |
+| serializeResponse            | [serializeResponse.mjs](src/lib/server/serializeResponse.mjs)                       | A function taking the server config object and a Response, and returning a json string to be saved. Can be async. _Not available via cli/npx._                                                                                     |
+| respond                      | [respond.mjs](src/lib/server/respond.mjs)                                           | A function taking the server config object, the Koa `ctx`, a json string (originally returned from `serializeResponse`) and an errors array to set a response on [`ctx`](https://koajs.com/#context). _Not available via cli/npx._ |
 
 ```javascript
 server({
@@ -124,7 +119,9 @@ server({
   getRequestHash: (resource, init) => resource.replace(/\/+/g, '-'),
   getRelativeResourceDirectory: (resource, init) => '/',
   serializeResponse: async (config, response) => await response.text(),
-  respond: (config, ctx, data, errors) => { ctx.body = 'Hello Swetch' }
+  respond: (config, ctx, data, errors) => {
+    ctx.body = 'Hello Swetch'
+  },
 })
 ```
 
@@ -132,21 +129,21 @@ server({
 
 ## Swetch
 
-| Property | Default | Info |
-| --- | --- | --- |
-| server | `'http://localhost:8008'` | The swetch server address |
-| record | `false` | Whether to save requests made by this instance |
-| origin |  | The host where your data resides (falls back onto `location.host`). Only required if swetch server doesn't run on the origin, f.e. if it runs in a docker container. |
+| Property | Default                   | Info                                                                                                                                                                 |
+| -------- | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| server   | `'http://127.0.0.1:8008'` | The swetch server address                                                                                                                                            |
+| record   | `false`                   | Whether to save requests made by this instance                                                                                                                       |
+| origin   |                           | The host where your data resides (falls back onto `location.host`). Only required if swetch server doesn't run on the origin, f.e. if it runs in a docker container. |
 
 ```javascript
 const testFetch = swetch({
-  server: 'http://localhost:8009',
+  server: 'http://127.0.0.1:8009',
   record: !process.env.IS_CI,
   origin: 'http://mycontainer',
 })
 
 const testInterceptor = axiosInterceptor({
-  server: 'http://localhost:8009',
+  server: 'http://127.0.0.1:8009',
   record: !process.env.IS_CI,
   origin: 'http://mycontainer',
 })
