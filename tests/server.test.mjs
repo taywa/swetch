@@ -2,11 +2,11 @@ import fetch from 'node-fetch'
 import { expect, test, beforeAll, describe } from 'vitest'
 import server from '../src/lib/server.mjs'
 import { from_url_map } from '../src/lib/server/from_url_map.mjs'
-import defaultServerConfig from '../src/lib/server/defaultServerConfig.mjs'
+import { default_options } from '../src/lib/server/default_options.mjs'
 
 beforeAll(() => {
   server({
-    ...defaultServerConfig,
+    ...default_options,
     port: 8009,
     resolve_url: from_url_map(
       ['/posts', 'https://jsonplaceholder.typicode.com'],

@@ -5,7 +5,7 @@ import process from 'node:process'
 import server from '../lib/server.mjs'
 import { read_options_file } from '../lib/server/read_options_file.mjs'
 import { merge_options } from '../lib/merge_options.mjs'
-import defaultServerConfig from '../lib/server/defaultServerConfig.mjs'
+import { default_options } from '../lib/server/default_options.mjs'
 import { join } from 'node:path'
 
 /** @type {(argv: string[], ...flags: string[]) => string | undefined} */
@@ -37,7 +37,7 @@ const start = async () => {
   // typecast because default options is complete
   const options =
     /** @type {Omit<options, 'resolve_url'> & Partial<Pick<options, 'resolve_url'>>} */ (
-      merge_options(defaultServerConfig, user_options)
+      merge_options(default_options, user_options)
     )
 
   if (!options.resolve_url) {
