@@ -91,7 +91,7 @@ const server = options => {
         const { host: _, ...request_headers } = ctx.req.headers
 
         const headers = new Headers()
-        for (const [header, value] of Object.entries(ctx.req.headers)) {
+        for (const [header, value] of Object.entries(request_headers)) {
           if (typeof value == 'string') {
             headers.set(header, value)
           }
