@@ -138,6 +138,7 @@ const server = options => {
         }
       }
 
+      ctx.set('Access-Control-Allow-Origin', '*')
       ctx.body = response_data
       const content_type = mime.contentType(extname(file_path))
       if (typeof content_type === 'string') {
