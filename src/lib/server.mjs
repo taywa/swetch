@@ -86,7 +86,16 @@ const server = options => {
 
       // make request & write file
       if (record) {
-        const { rawBody, headers } = ctx.request
+        const { rawBody } = ctx.request
+        // remove host header because it points to this server
+        const { host: _, ...request_headers } = ctx.req.headers
+
+        const headers = new Headers()
+        for (const [header, value] of Object.entries(ctx.req.headers)) {
+          if (typeof value == 'string') {
+            headers.set(header, value)
+          }
+        }
 
         const response = await fetch(target_url, {
           method: request_method,
