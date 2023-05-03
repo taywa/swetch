@@ -5,7 +5,7 @@ import os from 'node:os'
 import path, { extname } from 'node:path'
 import fetch from 'node-fetch'
 import mime from 'mime-types'
-import { Request } from 'node-fetch'
+import { Headers } from 'node-fetch'
 
 /** @type {(request: any) => Request} */
 const as_request = request =>
@@ -54,15 +54,15 @@ const server = options => {
         return
       }
 
+      const url_option = Object.freeze(ctx.URL)
+      /** @type {Request} */
+      const request_option = as_request({
+        method: ctx.method,
+        body: ctx.request.rawBody,
+        json: () => JSON.parse(ctx.request.rawBody),
+      })
       // start resolving
-      const target_url = resolve_url(
-        new URL(ctx.URL),
-        as_request({
-          method: ctx.method,
-          body: ctx.request.rawBody,
-          json: () => JSON.parse(ctx.request.rawBody),
-        })
-      )
+      const target_url = resolve_url(url_option, request_option)
 
       if (target_url.origin === ctx.URL.origin) {
         throw {
@@ -77,12 +77,8 @@ const server = options => {
       let response_data
 
       const relative_file_path = await resolve_file_path(
-        ctx.URL,
-        as_request({
-          method: ctx.method,
-          body: ctx.request.rawBody,
-          json: () => JSON.parse(ctx.request.rawBody),
-        })
+        url_option,
+        request_option
       )
 
       // TODO: handle requests to index (`/`)
