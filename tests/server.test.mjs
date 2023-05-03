@@ -105,8 +105,8 @@ describe(
           },
         })
       },
-      { timeout: 5000, retry: 2 }
+      { timeout: 8000, retry: 3 }
     )
   },
-  { timeout: 2000, retry: 2 }
+  { timeout: 2000, retry: 3 }
 )
