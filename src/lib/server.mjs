@@ -105,9 +105,10 @@ const server = options => {
         const array_buffer = await response.arrayBuffer()
         const buffer = Buffer.from(array_buffer)
 
-        const extension = headers['content-type']
-          ? mime.extension(headers['content-type']) || ''
-          : ''
+        const content_type = headers.get('content-type')
+        const maybe_extension = content_type && mime.extension(content_type)
+        const extension =
+          typeof maybe_extension === 'string' ? maybe_extension : ''
 
         // create necessary folders if required
         try {
