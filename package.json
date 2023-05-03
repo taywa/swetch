@@ -17,6 +17,7 @@
     "isomorphic-fetch": "^3.0.0",
     "koa": "^2.13.4",
     "koa-bodyparser": "^4.3.0",
+    "mime-types": "^2.1.35",
     "node-fetch": "^3.2.0"
   },
   "devDependencies": {

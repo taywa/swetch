@@ -1,6 +1,7 @@
 import { babel } from '@rollup/plugin-babel'
 import { nodeResolve } from '@rollup/plugin-node-resolve'
 import commonjs from '@rollup/plugin-commonjs'
+import json from '@rollup/plugin-json'
 
 const buildDir = 'dist'
 
@@ -20,6 +21,7 @@ const config = formats.flatMap(({ format, extension = format }) =>
           'fs',
           'path',
           'os',
+          'mime-types',
         ],
         plugins: [
           nodeResolve(),

@@ -13,7 +13,12 @@ describe('server', () => {
   test('gets from jsonplaceholder', async () => {
     const response = await fetch('http://127.0.0.1:8008/posts')
 
-    expect(response.status).toBe(200)
+    expect(response.status, `non-200 status: "${response.body}"`).toStrictEqual(
+      200
+    )
+    expect(response.headers.get('Content-Type')).toEqual(
+      'application/json; charset=utf-8'
+    )
 
     const json = await response.json()
 
@@ -25,7 +30,12 @@ describe('server', () => {
       method: 'post',
     })
 
-    expect(response.status).toBe(200)
+    expect(response.status, `non-200 status: "${response.body}"`).toStrictEqual(
+      200
+    )
+    expect(response.headers.get('Content-Type')).toEqual(
+      'application/json; charset=utf-8'
+    )
 
     const json = await response.json()
 
