@@ -56,11 +56,7 @@ const server = options => {
 
       const url_option = Object.freeze(ctx.URL)
       /** @type {Request} */
-      const request_option = as_request({
-        method: ctx.method,
-        body: ctx.request.rawBody,
-        json: () => JSON.parse(ctx.request.rawBody),
-      })
+      const request_option = as_request(ctx.req)
       // start resolving
       const target_url = resolve_url(url_option, request_option)
 
