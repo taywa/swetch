@@ -54,6 +54,7 @@ const server = options => {
         return
       }
 
+      // pass readonly url to resolvers to avoid side-effects
       const url_option = Object.freeze(ctx.URL)
       /** @type {Request} */
       const request_option = as_request(ctx.req)
