@@ -10,102 +10,103 @@ beforeAll(() => {
     port: 8009,
     resolve_url: from_url_map(
       ['/posts', 'https://jsonplaceholder.typicode.com'],
-      ['/v2/c4d7a195/graphql', 'https://api.mocki.io']
+      ['/graphql/v1beta', 'https://beta.pokeapi.co']
     ),
   })
 })
 
-describe('server', () => {
-  test('gets from jsonplaceholder', async () => {
-    const response = await fetch('http://127.0.0.1:8009/posts')
+describe(
+  'server',
+  () => {
+    test('gets from jsonplaceholder', async () => {
+      const response = await fetch('http://127.0.0.1:8009/posts')
+      const text = await response.text()
 
-    expect(
-      response.status,
-      `non-200 status: \`${await response.text()}\``
-    ).toStrictEqual(200)
-    expect(response.headers.get('Content-Type')).toEqual(
-      'application/json; charset=utf-8'
-    )
+      expect(response.status, `non-200 status: \`${text}\``).toStrictEqual(200)
+      expect(response.headers.get('Content-Type')).toEqual(
+        'application/json; charset=utf-8'
+      )
 
-    const json = await response.json()
+      const json = JSON.parse(text)
 
-    expect(json).toHaveLength(100)
-  })
-
-  test('posts to jsonplaceholder', async () => {
-    const response = await fetch('http://127.0.0.1:8009/posts', {
-      method: 'post',
+      expect(json).toHaveLength(100)
     })
 
-    expect(
-      response.status,
-      `non-200 status: \`${await response.text()}\``
-    ).toStrictEqual(200)
-    expect(response.headers.get('Content-Type')).toEqual(
-      'application/json; charset=utf-8'
-    )
+    test('posts to jsonplaceholder', async () => {
+      const response = await fetch('http://127.0.0.1:8009/posts', {
+        method: 'post',
+      })
+      const text = await response.text()
 
-    const json = await response.json()
+      expect(response.status, `non-200 status: \`${text}\``).toStrictEqual(200)
+      expect(response.headers.get('Content-Type')).toEqual(
+        'application/json; charset=utf-8'
+      )
 
-    expect(json).toHaveProperty('id', 101)
-  })
+      const json = JSON.parse(text)
 
-  test('queries graphql from mockio', async () => {
-    const response = await fetch('http://127.0.0.1:8009/v2/c4d7a195/graphql', {
-      method: 'post',
-      body: JSON.stringify({
-        query: `{
-          users {
-            id
-            name
-            email
-          }
-          todos {
-            id
-            description
-            done
-          }
-        }`,
-      }),
+      expect(json).toHaveProperty('id', 101)
     })
 
-    expect(
-      response.status,
-      `non-200 status: \`${await response.text()}\``
-    ).toStrictEqual(200)
-    expect(response.headers.get('Content-Type')).toEqual(
-      'application/json; charset=utf-8'
-    )
+    test(
+      'queries graphql from pokéapi',
+      async () => {
+        const response = await fetch('http://127.0.0.1:8009/graphql/v1beta', {
+          method: 'post',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            operationName: 'generations',
+            variables: null,
+            query: `query generations {
+            pokemon_v2_generation(limit: 3) {
+              name
+              pokemon_v2_region {
+                name
+              }
+            }
+          }`,
+          }),
+        })
+        const text = await response.text()
 
-    const json = await response.json()
+        expect(response.status, `non-200 status: \`${text}\``).toStrictEqual(
+          200
+        )
+        expect(response.headers.get('Content-Type')).toEqual(
+          'application/json; charset=utf-8'
+        )
 
-    expect(json).toEqual({
-      data: {
-        users: [
-          {
-            id: 'Hello World',
-            name: 'Hello World',
-            email: 'Hello World',
+        const json = JSON.parse(text)
+
+        expect(json).toEqual({
+          data: {
+            pokemon_v2_generation: [
+              {
+                name: 'generation-i',
+                pokemon_v2_region: {
+                  name: 'kanto',
+                },
+              },
+              {
+                name: 'generation-ii',
+                pokemon_v2_region: {
+                  name: 'johto',
+                },
+              },
+              {
+                name: 'generation-iii',
+                pokemon_v2_region: {
+                  name: 'hoenn',
+                },
+              },
+            ],
           },
-          {
-            id: 'Hello World',
-            name: 'Hello World',
-            email: 'Hello World',
-          },
-        ],
-        todos: [
-          {
-            id: 'Hello World',
-            description: 'Hello World',
-            done: false,
-          },
-          {
-            id: 'Hello World',
-            description: 'Hello World',
-            done: false,
-          },
-        ],
+        })
       },
-    })
-  })
-})
+      { timeout: 5000, retry: 2 }
+    )
+  },
+  { timeout: 2000, retry: 2 }
+)
