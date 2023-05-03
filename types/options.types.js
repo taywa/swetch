@@ -3,7 +3,7 @@
  *  port: number
  *  dataDirectory: string
  *  resolve_url: resolve_url
- *  resolve_file_path: (options: options, url: URL, request: Request) => string | Promise<string>
+ *  resolve_file_path: (url: URL, request: Request) => string | Promise<string>
  * }} options
  */
 

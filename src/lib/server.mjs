@@ -56,7 +56,6 @@ const server = options => {
 
       // start resolving
       const target_url = resolve_url(
-        options,
         new URL(ctx.URL),
         as_request({
           method: ctx.method,
@@ -78,7 +77,6 @@ const server = options => {
       let response_data
 
       const relative_file_path = await resolve_file_path(
-        options,
         ctx.URL,
         as_request({
           method: ctx.method,

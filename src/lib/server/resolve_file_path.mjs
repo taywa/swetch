@@ -73,7 +73,7 @@ const graphql_file_name = document_node => {
 }
 
 /** @type {options['resolve_file_path']} */
-export const resolve_file_path = async (_, url, request) => {
+export const resolve_file_path = async (url, request) => {
   const url_dirname = dirname(url.pathname)
   const url_basename = basename(url.pathname)
 

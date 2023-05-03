@@ -1,7 +1,6 @@
 import { expect, test, describe } from 'vitest'
 
 import { resolve_file_path } from '../src/lib/server/resolve_file_path.mjs'
-import defaultServerConfig from '../src/lib/server/defaultServerConfig.mjs'
 import { Request } from './utilities.mjs'
 
 describe('resolve_file_path', () => {
@@ -10,11 +9,7 @@ describe('resolve_file_path', () => {
       const url = new URL('https://test.domain.tld/path/to/file.ext')
       const request = Request(url)
 
-      const file_path = await resolve_file_path(
-        defaultServerConfig,
-        url,
-        request
-      )
+      const file_path = await resolve_file_path(url, request)
 
       expect(file_path).toBe('/path/to/file.ext')
     })
@@ -28,11 +23,7 @@ describe('resolve_file_path', () => {
         body: JSON.stringify({ another: 1 }),
       })
 
-      const file_path = await resolve_file_path(
-        defaultServerConfig,
-        url,
-        request
-      )
+      const file_path = await resolve_file_path(url, request)
 
       expect(file_path).toBe('/path/to/file.post.another:1|parameter:value.ext')
     })
@@ -43,11 +34,7 @@ describe('resolve_file_path', () => {
       )
       const request = Request(url)
 
-      const file_path = await resolve_file_path(
-        defaultServerConfig,
-        url,
-        request
-      )
+      const file_path = await resolve_file_path(url, request)
 
       expect(file_path).toBe('/path/to/file.something.else.parameter:value.ext')
     })
@@ -58,11 +45,7 @@ describe('resolve_file_path', () => {
       const url = new URL('https://test.domain.tld/path/to/rest')
       const request = Request(url)
 
-      const file_path = await resolve_file_path(
-        defaultServerConfig,
-        url,
-        request
-      )
+      const file_path = await resolve_file_path(url, request)
 
       expect(file_path).toBe('/path/to/rest.get.json')
     })
@@ -73,11 +56,7 @@ describe('resolve_file_path', () => {
       )
       const request = Request(url)
 
-      const file_path = await resolve_file_path(
-        defaultServerConfig,
-        url,
-        request
-      )
+      const file_path = await resolve_file_path(url, request)
 
       expect(file_path).toBe('/path/to/rest.get.another:1|parameter:value.json')
     })
@@ -89,11 +68,7 @@ describe('resolve_file_path', () => {
         body: JSON.stringify({ parameter: 'value', another: 1 }),
       })
 
-      const file_path = await resolve_file_path(
-        defaultServerConfig,
-        url,
-        request
-      )
+      const file_path = await resolve_file_path(url, request)
 
       expect(file_path).toBe(
         '/path/to/rest.post.another:1|parameter:value.json'
@@ -109,11 +84,7 @@ describe('resolve_file_path', () => {
         body: JSON.stringify({ another: 1 }),
       })
 
-      const file_path = await resolve_file_path(
-        defaultServerConfig,
-        url,
-        request
-      )
+      const file_path = await resolve_file_path(url, request)
 
       expect(file_path).toBe(
         '/path/to/rest.post.another:1|parameter:value.json'
@@ -129,11 +100,7 @@ describe('resolve_file_path', () => {
         body: JSON.stringify({ another_file: '/also/this/too' }),
       })
 
-      const file_path = await resolve_file_path(
-        defaultServerConfig,
-        url,
-        request
-      )
+      const file_path = await resolve_file_path(url, request)
 
       expect(file_path).toBe(
         '/path/to/rest.post.another_file:_also_this_too|some_file:_escape_this.json'
@@ -151,11 +118,7 @@ describe('resolve_file_path', () => {
         }),
       })
 
-      const file_path = await resolve_file_path(
-        defaultServerConfig,
-        url,
-        request
-      )
+      const file_path = await resolve_file_path(url, request)
 
       expect(file_path).toBe('/graphql/graphqlQuery.json')
     })
@@ -173,11 +136,7 @@ describe('resolve_file_path', () => {
         }),
       })
 
-      const file_path = await resolve_file_path(
-        defaultServerConfig,
-        url,
-        request
-      )
+      const file_path = await resolve_file_path(url, request)
 
       expect(file_path).toBe(
         '/graphql/namedQuery.another:1|variable:value.json'
@@ -193,11 +152,7 @@ describe('resolve_file_path', () => {
         }),
       })
 
-      const file_path = await resolve_file_path(
-        defaultServerConfig,
-        url,
-        request
-      )
+      const file_path = await resolve_file_path(url, request)
 
       expect(file_path).toBe('/graphql/graphqlQuery+anotherQuery.json')
     })
@@ -215,11 +170,7 @@ describe('resolve_file_path', () => {
         }),
       })
 
-      const file_path = await resolve_file_path(
-        defaultServerConfig,
-        url,
-        request
-      )
+      const file_path = await resolve_file_path(url, request)
 
       expect(file_path).toBe(
         '/graphql/namedQuery.another:1|variable:value.json'
@@ -235,11 +186,7 @@ describe('resolve_file_path', () => {
         }),
       })
 
-      const file_path = await resolve_file_path(
-        defaultServerConfig,
-        url,
-        request
-      )
+      const file_path = await resolve_file_path(url, request)
 
       expect(file_path).toBe('/graphql/someMutation.json')
     })
@@ -253,11 +200,7 @@ describe('resolve_file_path', () => {
         }),
       })
 
-      const file_path = await resolve_file_path(
-        defaultServerConfig,
-        url,
-        request
-      )
+      const file_path = await resolve_file_path(url, request)
 
       expect(file_path).toBe('/graphql/myMutation.json')
     })
@@ -274,11 +217,7 @@ describe('resolve_file_path', () => {
         }),
       })
 
-      const file_path = await resolve_file_path(
-        defaultServerConfig,
-        url,
-        request
-      )
+      const file_path = await resolve_file_path(url, request)
 
       expect(file_path).toBe('/graphql/myMutation.some_file:_escape_this.json')
     })

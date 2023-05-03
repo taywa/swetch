@@ -24,7 +24,7 @@ const Target = target => {
       const target_origin = target_url.origin
 
       /** @type {resolve_url} */
-      const resolve_url = (_, url) => new URL(`${target_origin}${url.pathname}`)
+      const resolve_url = url => new URL(`${target_origin}${url.pathname}`)
 
       return resolve_url
     }
@@ -81,10 +81,10 @@ export const from_url_map = (...url_map) => {
   }
 
   /**  @type {resolve_url} */
-  const resolve_url = (options, url, request) => {
+  const resolve_url = (url, request) => {
     for (const [source, resolve_url] of internal_url_map) {
       if (source.test(url.pathname)) {
-        return resolve_url(options, url, request)
+        return resolve_url(url, request)
       }
     }
 

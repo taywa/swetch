@@ -1,6 +1,5 @@
 import { expect, test, describe } from 'vitest'
 import { from_url_map } from '../src/lib/server/from_url_map.mjs'
-import defaultServerConfig from '../src/lib/server/defaultServerConfig.mjs'
 import { Request } from './utilities.mjs'
 
 describe('from_url_map creates resolver', () => {
@@ -8,14 +7,14 @@ describe('from_url_map creates resolver', () => {
     const resolve_url = from_url_map(['/', 'https://other.host/ignored/path'])
 
     const path_url = new URL('http://127.0.0.1:8008/rest/api')
-    expect(
-      resolve_url(defaultServerConfig, path_url, Request(path_url))
-    ).toStrictEqual(new URL('https://other.host/rest/api'))
+    expect(resolve_url(path_url, Request(path_url))).toStrictEqual(
+      new URL('https://other.host/rest/api')
+    )
 
     const index_url = new URL('http://127.0.0.1:8008')
-    expect(
-      resolve_url(defaultServerConfig, index_url, Request(index_url))
-    ).toStrictEqual(new URL('https://other.host'))
+    expect(resolve_url(index_url, Request(index_url))).toStrictEqual(
+      new URL('https://other.host')
+    )
   })
 
   test('with string sources & targets', () => {
@@ -25,14 +24,14 @@ describe('from_url_map creates resolver', () => {
     )
 
     const rest_url = new URL('http://127.0.0.1:8008/rest/api')
-    expect(
-      resolve_url(defaultServerConfig, rest_url, Request(rest_url))
-    ).toStrictEqual(new URL('https://other.host/rest/api'))
+    expect(resolve_url(rest_url, Request(rest_url))).toStrictEqual(
+      new URL('https://other.host/rest/api')
+    )
 
     const graphql_url = new URL('http://127.0.0.1:8008/graphql')
-    expect(
-      resolve_url(defaultServerConfig, graphql_url, Request(graphql_url))
-    ).toStrictEqual(new URL('https://graphql.host/graphql'))
+    expect(resolve_url(graphql_url, Request(graphql_url))).toStrictEqual(
+      new URL('https://graphql.host/graphql')
+    )
   })
 
   test('with regex sources & string targets', () => {
@@ -42,16 +41,16 @@ describe('from_url_map creates resolver', () => {
     )
 
     const exact_url = new URL('http://127.0.0.1:8008/everything-after')
-    expect(
-      resolve_url(defaultServerConfig, exact_url, Request(exact_url))
-    ).toStrictEqual(new URL('https://exacty.everything.after/everything-after'))
+    expect(resolve_url(exact_url, Request(exact_url))).toStrictEqual(
+      new URL('https://exacty.everything.after/everything-after')
+    )
 
     const wildcard_url = new URL(
       'http://127.0.0.1:8008/everything-after/allowed'
     )
-    expect(
-      resolve_url(defaultServerConfig, wildcard_url, Request(wildcard_url))
-    ).toStrictEqual(new URL('http://everything.after/everything-after/allowed'))
+    expect(resolve_url(wildcard_url, Request(wildcard_url))).toStrictEqual(
+      new URL('http://everything.after/everything-after/allowed')
+    )
   })
 
   test('with regex sources & function targets', () => {
@@ -61,16 +60,16 @@ describe('from_url_map creates resolver', () => {
     )
 
     const exact_url = new URL('http://127.0.0.1:8008/everything-after')
-    expect(
-      resolve_url(defaultServerConfig, exact_url, Request(exact_url))
-    ).toStrictEqual(new URL('https://exacty.everything.after/everything-after'))
+    expect(resolve_url(exact_url, Request(exact_url))).toStrictEqual(
+      new URL('https://exacty.everything.after/everything-after')
+    )
 
     const wildcard_url = new URL(
       'http://127.0.0.1:8008/everything-after/allowed'
     )
-    expect(
-      resolve_url(defaultServerConfig, wildcard_url, Request(wildcard_url))
-    ).toStrictEqual(new URL('http://everything.after/everything-after/allowed'))
+    expect(resolve_url(wildcard_url, Request(wildcard_url))).toStrictEqual(
+      new URL('http://everything.after/everything-after/allowed')
+    )
   })
 
   test('which throws an error for unknown paths', () => {
@@ -79,14 +78,14 @@ describe('from_url_map creates resolver', () => {
 
     const url = new URL('http://127.0.0.1:8008')
     expect(() => {
-      resolve_url_from_empty_map(defaultServerConfig, url, Request(url))
+      resolve_url_from_empty_map(url, Request(url))
     }).toThrowError(new Error('[resolve_url] no source for `/`'))
 
     // with entries
     const resolve_url = from_url_map(['/un-used', 'http://never.used'])
 
     expect(() => {
-      resolve_url(defaultServerConfig, url, Request(url))
+      resolve_url(url, Request(url))
     }).toThrowError(new Error('[resolve_url] no source for `/`'))
   })
 })
