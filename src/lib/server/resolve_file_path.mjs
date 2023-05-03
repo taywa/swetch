@@ -66,6 +66,7 @@ const graphql_file_name = document_node => {
 
   const selection_names = operation_definition.selectionSet.selections
     .filter(is_field_selection_node)
+    .filter(selection_node => selection_node.name.value !== '__typename')
     .map(selection_node => selection_node.name.value)
   const name = selection_names.join('+')
 

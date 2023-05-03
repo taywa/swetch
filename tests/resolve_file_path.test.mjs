@@ -114,7 +114,7 @@ describe('resolve_file_path', () => {
       const request = Request(url, {
         method: 'post',
         body: JSON.stringify({
-          query: `{graphqlQuery{id}}`,
+          query: `{__typename graphqlQuery{id}}`,
         }),
       })
 
@@ -128,7 +128,7 @@ describe('resolve_file_path', () => {
       const request = Request(url, {
         method: 'post',
         body: JSON.stringify({
-          query: `query namedQuery($variable: String, $another: Int){graphqlQuery{id}}`,
+          query: `query namedQuery($variable: String, $another: Int){__typename graphqlQuery{id}}`,
           variables: {
             variable: 'value',
             another: 1,
@@ -148,7 +148,7 @@ describe('resolve_file_path', () => {
       const request = Request(url, {
         method: 'post',
         body: JSON.stringify({
-          query: `{graphqlQuery{id}anotherQuery{name}}`,
+          query: `{__typename\ngraphqlQuery{id}anotherQuery{name}}`,
         }),
       })
 
