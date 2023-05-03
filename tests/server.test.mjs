@@ -60,13 +60,13 @@ describe(
             operationName: 'generations',
             variables: null,
             query: `query generations {
-            pokemon_v2_generation(limit: 3) {
-              name
-              pokemon_v2_region {
+              pokemon_v2_generation(limit: 3) {
                 name
+                pokemon_v2_region {
+                  name
+                }
               }
-            }
-          }`,
+            }`,
           }),
         })
         const text = await response.text()
