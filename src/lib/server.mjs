@@ -5,38 +5,44 @@ import os from 'node:os'
 import path, { extname } from 'node:path'
 import fetch from 'node-fetch'
 import mime from 'mime-types'
-
-import { mergeConfig } from './utilities.mjs'
-import defaultServerConfig from './server/defaultServerConfig.mjs'
+import { Request } from 'node-fetch'
 
 /** @type {(request: any) => Request} */
 const as_request = request =>
   /** @type {Request} */ (/** @type {unknown} */ (request))
 
-/** @type {(user_options?: Partial<options>) => Koa} */
-const server = config => {
-  const runtimeConfig = mergeConfig(defaultServerConfig, config ?? {})
-  const { port, dataDirectory, respond, resolve_url, resolve_file_path } =
-    runtimeConfig
+/** @type {(options: options) => Koa} */
+const server = options => {
+  const { port, dataDirectory, resolve_url, resolve_file_path } = options
 
   const dataRoot = path.join(process.cwd(), dataDirectory)
 
   const koa = new Koa()
 
   koa
-    .use(koaBodyparser())
     .use(async (ctx, next) => {
       try {
         await next()
       } catch (/** @type {any} */ error) {
-        ctx.status = error.status ?? 500
+        const { status = 500, message } = error
 
-        ctx.body = {
-          message: error.message,
-          details: { requestBody: ctx.request.body },
+        /** @type {any} */
+        const details = {}
+
+        if (ctx.request.body) {
+          details.requestBody = ctx.request.body
         }
+
+        ctx.status = status
+        ctx.body = {
+          message: message,
+          details: Object.keys(details).length ? details : undefined,
+        }
+
+        console.trace(`${status}: ${message}`, details)
       }
     })
+    .use(koaBodyparser())
     .use(async (ctx, next) => {
       await next()
 
@@ -50,9 +56,13 @@ const server = config => {
 
       // start resolving
       const target_url = resolve_url(
-        runtimeConfig,
+        options,
         new URL(ctx.URL),
-        as_request(ctx.req)
+        as_request({
+          method: ctx.method,
+          body: ctx.request.rawBody,
+          json: () => JSON.parse(ctx.request.rawBody),
+        })
       )
 
       if (target_url.origin === ctx.URL.origin) {
@@ -62,39 +72,54 @@ const server = config => {
         }
       }
 
-      const relative_file_path = await resolve_file_path(
-        runtimeConfig,
-        ctx.URL,
-        as_request(ctx.req)
-      )
-      const file_path = path.join(
-        runtimeConfig.dataDirectory,
-        relative_file_path
-      )
-
+      // TODO:; read from config via function
       const record = true
 
       let response_data
 
+      const relative_file_path = await resolve_file_path(
+        options,
+        ctx.URL,
+        as_request({
+          method: ctx.method,
+          body: ctx.request.rawBody,
+          json: () => JSON.parse(ctx.request.rawBody),
+        })
+      )
+
+      // TODO: handle requests to index (`/`)
+      const file_path = path.join(options.dataDirectory, relative_file_path)
+
       // make request & write file
       if (record) {
-        // create necessary folders if required
-        try {
-          const directory = path.dirname(file_path)
-          await fs.mkdir(directory, { recursive: true })
-        } catch {}
+        const { rawBody, headers } = ctx.request
 
-        const response = await fetch(target_url, { method: request_method })
+        const response = await fetch(target_url, {
+          method: request_method,
+          body: rawBody,
+          headers,
+        })
         const array_buffer = await response.arrayBuffer()
         const buffer = Buffer.from(array_buffer)
+
+        const extension = headers['content-type']
+          ? mime.extension(headers['content-type']) || ''
+          : ''
+
+        // create necessary folders if required
+        try {
+          const file_dirname = path.dirname(file_path)
+          await fs.mkdir(file_dirname, { recursive: true })
+        } catch {}
 
         try {
           await fs.writeFile(file_path, buffer)
 
-          console.info(`wrote ${request_method} ${relative_file_path}`)
-        } catch (error) {
+          // TODO: recorded vs updated
+          console.info(`recorded ${relative_file_path}`)
+        } catch (/** @type {any} */ error) {
           throw {
-            message: 'unable to write',
+            message: `unable to write \`${file_path}\`: ${error.message}`,
             status: 500,
           }
         }

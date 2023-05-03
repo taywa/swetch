@@ -1,8 +1,10 @@
 import { basename, dirname, extname, join } from 'node:path'
+import { gql } from 'graphql-tag'
+import { Kind } from 'graphql'
 
 /** @type {(options: { url: string, body?: any }) => 'rest' | 'graphql' | 'file'} */
 export const resolve_request_type = options => {
-  if (options.body?.operationName && options.body.variables) {
+  if (options.body && (options.body?.operationName || options.body.query)) {
     return 'graphql'
   }
 
@@ -14,13 +16,61 @@ export const resolve_request_type = options => {
   return 'rest'
 }
 
+/**
+ * replace characters related to file paths (`/`, `\`, `.`) with underscores
+ *
+ * @type {(variable: string) => string}
+ */
+const escape_request_variable = variable => variable.replace(/[./\\]/g, '_')
+
 /** @type {(request_variables: any) => string} */
 const stringify_request_variables = request_variables =>
   Object.entries(request_variables)
     .sort(([nameA], [nameB]) => nameA.localeCompare(nameB))
     // TODO: hash part of name and value if too long
-    .map(([name, value]) => `${name}:${JSON.stringify(value)}`)
+    .map(([name, value]) => {
+      switch (typeof value) {
+        case 'string':
+          return `${name}:${escape_request_variable(value)}`
+        case 'number':
+          return `${name}:${escape_request_variable(value.toString())}`
+      }
+
+      return `${name}:${escape_request_variable(JSON.stringify(value))}`
+    })
     .join('|')
+
+/** @type {(definition_node: import('graphql').DefinitionNode) => definition_node is import('graphql').OperationDefinitionNode} */
+const is_operation_definition_node = definition_node =>
+  definition_node.kind === Kind.OPERATION_DEFINITION
+
+/** @type {(selection_node: import('graphql').SelectionNode) => selection_node is import('graphql').FieldNode} */
+const is_field_selection_node = selection_node =>
+  selection_node.kind === Kind.FIELD
+
+/** @type {(document_node: import('graphql').DocumentNode) => string} */
+const graphql_file_name = document_node => {
+  const operation_definition = document_node.definitions.find(
+    is_operation_definition_node
+  )
+
+  if (!operation_definition) {
+    throw new Error(
+      `unable to get graphql file name. this possibly needs support, please submit an issue at https://github.com/taywa/swetch/issues/new with the following output:\n${document_node?.loc?.source.body}`
+    )
+  }
+
+  if (operation_definition.name) {
+    return operation_definition.name.value
+  }
+
+  const selection_names = operation_definition.selectionSet.selections
+    .filter(is_field_selection_node)
+    .map(selection_node => selection_node.name.value)
+  const name = selection_names.join('+')
+
+  return name
+}
 
 /** @type {options['resolve_file_path']} */
 export const resolve_file_path = async (_, url, request) => {
@@ -31,7 +81,7 @@ export const resolve_file_path = async (_, url, request) => {
   const post_variables = request.body ? await request.json() : {}
 
   const request_type = resolve_request_type({
-    url: request.url,
+    url: url.href,
     body: post_variables,
   })
 
@@ -64,16 +114,20 @@ export const resolve_file_path = async (_, url, request) => {
     }
 
     case 'graphql': {
-      const { operationName, variables } = post_variables
+      const { query, variables } = post_variables
+
+      const document_node = gql(query)
+      const file_name = graphql_file_name(document_node)
+
       const request_variables = Object.assign(get_variables, variables)
       const request_variables_string =
         stringify_request_variables(request_variables)
 
-      const file_name = request_variables_string
-        ? `${operationName}.${request_variables_string}.json`
-        : `${operationName}.json`
+      const file_basename = request_variables_string
+        ? `${file_name}.${request_variables_string}.json`
+        : `${file_name}.json`
 
-      return join(url.pathname, file_name)
+      return join(url.pathname, file_basename)
     }
   }
 }

@@ -21,15 +21,10 @@ const Target = target => {
   switch (typeof target) {
     case 'string': {
       const target_url = new URL(target)
+      const target_origin = target_url.origin
 
       /** @type {resolve_url} */
-      const resolve_url = (_, url) => {
-        url.protocol = target_url.protocol
-        url.host = target_url.host
-        url.port = target_url.port
-
-        return url
-      }
+      const resolve_url = (_, url) => new URL(`${target_origin}${url.pathname}`)
 
       return resolve_url
     }

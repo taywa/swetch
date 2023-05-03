@@ -44,7 +44,7 @@ describe('read_options_file', () => {
       )
     }).rejects.toThrowError(
       new Error(
-        'missing `resolve_url` option (`tests/fixtures/swetch.config.missing:resolve_url.mjs`). add a property called `resolve_url` of type function to its export.'
+        'missing `resolve_url` option in `tests/fixtures/swetch.config.missing:resolve_url.mjs`. add a property called `resolve_url` of type function to its export.'
       )
     )
   })

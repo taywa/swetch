@@ -12,7 +12,7 @@ export const read_options_file = async file_path => {
 
   if (!options.resolve_url) {
     throw new Error(
-      `missing \`resolve_url\` option (\`${file_path}\`). add a property called \`resolve_url\` of type function to its export.`
+      `missing \`resolve_url\` option in \`${file_path}\`. add a property called \`resolve_url\` of type function to its export.`
     )
   }
 
