@@ -87,13 +87,19 @@ const server = options => {
       // make request & write file
       if (record) {
         const { rawBody } = ctx.request
-        // remove host header because it points to this server
-        const { host: _, ...request_headers } = ctx.req.headers
-
         const headers = new Headers()
-        for (const [header, value] of Object.entries(request_headers)) {
-          if (typeof value == 'string') {
-            headers.set(header, value)
+        for (const [header, value] of Object.entries(ctx.req.headers)) {
+          switch (header) {
+            // remove client-specific headers
+            case 'host':
+            case 'accept-encoding':
+            case 'connection':
+            case 'user-agent':
+              break
+            default:
+              if (typeof value == 'string') {
+                headers.set(header, value)
+              }
           }
         }
 
